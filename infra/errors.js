@@ -1,10 +1,10 @@
 export class InternalServerError extends Error {
   constructor({ cause, statusCode }) {
-    super("An unexpected internal error has happened", {
+    super("An unexpected internal error has happened.", {
       cause,
     });
     this.name = "InternalServerError";
-    this.action = "Contact the support team";
+    this.action = "Contact the support team.";
     this.statusCode = statusCode || 500;
   }
 
@@ -21,11 +21,11 @@ export class InternalServerError extends Error {
 
 export class ServiceError extends Error {
   constructor({ cause, message }) {
-    super(message || "Service is currently unavailable", {
+    super(message || "Service is currently unavailable.", {
       cause,
     });
     this.name = "ServiceError";
-    this.action = "Verify if the service is currently available";
+    this.action = "Verify if the service is currently available.";
     this.statusCode = 503;
   }
 
@@ -42,11 +42,11 @@ export class ServiceError extends Error {
 
 export class ValidationError extends Error {
   constructor({ cause, message, action }) {
-    super(message || "A validation error has occurred", {
+    super(message || "A validation error has occurred.", {
       cause,
     });
     this.name = "ValidationError";
-    this.action = action || "Adjust the provided data and try again";
+    this.action = action || "Adjust the provided data and try again.";
     this.statusCode = 400;
   }
 
@@ -63,10 +63,10 @@ export class ValidationError extends Error {
 
 export class MethodNotAllowedError extends Error {
   constructor() {
-    super("Not allowed method for this endpoint");
+    super("Not allowed method for this endpoint.");
     this.name = "MethodNotAllowedError";
     this.action =
-      "Verify if the provided HTTP method is valid for this endpoint";
+      "Verify if the provided HTTP method is valid for this endpoint.";
     this.statusCode = 405;
   }
 
