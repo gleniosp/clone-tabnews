@@ -1,14 +1,16 @@
 import database from "infra/database";
 import email from "infra/email.js";
+import { NotFoundError } from "infra/errors.js";
 import webserver from "infra/webserver";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes
 
-async function findOneByUserId(userId) {
-  const newToken = await runSelectQuery(userId);
-  return newToken;
+async function findOneValidById(activationTokenId) {
+  const tokenFound = await runSelectQuery(activationTokenId);
 
-  async function runSelectQuery(userId) {
+  return tokenFound;
+
+  async function runSelectQuery(activationTokenId) {
     const results = await database.query({
       text: `
         SELECT
@@ -16,12 +18,22 @@ async function findOneByUserId(userId) {
         FROM
           user_activation_tokens
         WHERE
-          user_id = $1
-        LIMIT
+          id = $1
+          AND expires_at > NOW()
+          AND used_at IS NULL
+        LIMIT 
           1
       ;`,
-      values: [userId],
+      values: [activationTokenId],
     });
+
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message:
+          "The activation token wasn't found on the system or the token is expired.",
+        action: "Please try to register again.",
+      });
+    }
 
     return results.rows[0];
   }
@@ -65,7 +77,7 @@ CloneTabNews team`,
 }
 
 const activation = {
-  findOneByUserId,
+  findOneValidById,
   create,
   sendEmailToUser,
 };
