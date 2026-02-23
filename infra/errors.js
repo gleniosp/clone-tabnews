@@ -20,13 +20,14 @@ export class InternalServerError extends Error {
 }
 
 export class ServiceError extends Error {
-  constructor({ cause, message }) {
+  constructor({ cause, message, action, context }) {
     super(message || "Service is currently unavailable.", {
       cause,
     });
     this.name = "ServiceError";
-    this.action = "Verify if the service is currently available.";
+    this.action = action || "Verify if the service is currently available.";
     this.statusCode = 503;
+    this.context = context;
   }
 
   // overwrites the JSON method from Error
@@ -36,6 +37,7 @@ export class ServiceError extends Error {
       message: this.message,
       action: this.action,
       status_code: this.statusCode,
+      context: this.context,
     };
   }
 }
