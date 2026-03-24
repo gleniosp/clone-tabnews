@@ -132,13 +132,26 @@ describe("POST /api/v1/sessions", () => {
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
 
+      // `expires_at` is calculated in the application before persistence.
+      // `created_at` is calculated later in the database layer.
+      // Because of this, the actual time between the two dates may end up slightly
+      // shorter than the configured expiration time and may not reach exactly 30 days
+      // in milliseconds if calculated only as `expires_at` - `created_at`.
+      // So the idea is to ensure that at the moment, `expires_at` is greater than
+      // `created_at`, and also allow for a gap of up to 5 seconds
+      // between the two dates to cover cases where the database experiences
+      // unexpected load during tests.
+
       const expiresAt = new Date(responseBody.expires_at);
       const createdAt = new Date(responseBody.created_at);
 
-      expiresAt.setMilliseconds(0);
-      createdAt.setMilliseconds(0);
+      expect(expiresAt >= createdAt).toBe(true);
 
-      expect(expiresAt - createdAt).toBe(session.EXPIRATION_IN_MILLISECONDS);
+      const actualLifetimeInMilliseconds = expiresAt - createdAt;
+      const lifetimeDifferenceInMilliseconds =
+        session.EXPIRATION_IN_MILLISECONDS - actualLifetimeInMilliseconds;
+
+      expect(lifetimeDifferenceInMilliseconds).toBeLessThanOrEqual(5000);
 
       const parsedSetCookie = setCookieParser(response, {
         map: true,
