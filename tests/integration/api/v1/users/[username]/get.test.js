@@ -1,4 +1,6 @@
 import { version as uuidVersion } from "uuid";
+
+import webserver from "infra/webserver.js";
 import orchestrator from "tests/orchestrator.js";
 
 beforeAll(async () => {
@@ -14,9 +16,7 @@ describe("GET /api/v1/users/[username]", () => {
         username: "SameCase",
       });
 
-      const response = await fetch(
-        "http://localhost:3000/api/v1/users/SameCase",
-      );
+      const response = await fetch(`${webserver.origin}/api/v1/users/SameCase`);
 
       expect(response.status).toBe(200);
 
@@ -41,7 +41,7 @@ describe("GET /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/differentcase",
+        `${webserver.origin}/api/v1/users/differentcase`,
       );
 
       expect(response.status).toBe(200);
@@ -63,7 +63,7 @@ describe("GET /api/v1/users/[username]", () => {
 
     test("With nonexistent username", async () => {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/nonexistentuser",
+        `${webserver.origin}/api/v1/users/nonexistentuser`,
       );
 
       expect(response.status).toBe(404);
