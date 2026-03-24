@@ -141,7 +141,7 @@ describe("POST /api/v1/users", () => {
       // a logged user tries to create another user
       const user1 = await orchestrator.createUser();
       await orchestrator.activateUser(user1);
-      const user1SessionObject = await orchestrator.createSession(user1.id);
+      const user1SessionObject = await orchestrator.createSession(user1);
 
       const user2Response = await fetch(`${webserver.origin}/api/v1/users`, {
         method: "POST",
