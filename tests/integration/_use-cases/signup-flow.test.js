@@ -10,7 +10,7 @@ beforeAll(async () => {
   await orchestrator.deleteAllEmails();
 });
 
-describe("Use case: Registration Flow (all successful)", () => {
+describe("Use case: SignUp Flow (all successful)", () => {
   let createUserResponseBody;
   let activationTokenId;
   let createSessionsResponseBody;
@@ -22,9 +22,9 @@ describe("Use case: Registration Flow (all successful)", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: "RegistrationFlow",
-        email: "registration.flow@example.com",
-        password: "RegistrationFlowPassword",
+        username: "SignUpFlow",
+        email: "signup.flow@example.com",
+        password: "SignUpFlowPassword",
       }),
     });
 
@@ -34,7 +34,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
     expect(createUserResponseBody).toEqual({
       id: createUserResponseBody.id,
-      username: "RegistrationFlow",
+      username: "SignUpFlow",
       features: ["read:activation_token"],
       created_at: createUserResponseBody.created_at,
       updated_at: createUserResponseBody.updated_at,
@@ -45,16 +45,14 @@ describe("Use case: Registration Flow (all successful)", () => {
     const lastEmail = await orchestrator.getLastEmail();
 
     expect(lastEmail.sender).toBe("<contact@clonetabnews.gleniosp.com>");
-    expect(lastEmail.recipients[0]).toBe("<registration.flow@example.com>");
-    expect(lastEmail.subject).toBe(
-      "Activate your registration at CloneTabNews!",
-    );
-    expect(lastEmail.text).toContain("RegistrationFlow");
+    expect(lastEmail.recipients[0]).toBe("<signup.flow@example.com>");
+    expect(lastEmail.subject).toBe("Activate your account at CloneTabNews!");
+    expect(lastEmail.text).toContain("SignUpFlow");
 
     activationTokenId = await orchestrator.extractUUID(lastEmail.text);
 
     expect(lastEmail.text).toContain(
-      `${webserver.origin}/registration/activate/${activationTokenId}`,
+      `${webserver.origin}/signup/activate/${activationTokenId}`,
     );
 
     const activationTokenObject =
@@ -78,7 +76,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
     expect(Date.parse(activationResponseBody.used_at)).not.toBeNaN();
 
-    const activatedUser = await user.findOneByUsername("RegistrationFlow");
+    const activatedUser = await user.findOneByUsername("SignUpFlow");
     expect(activatedUser.features).toEqual([
       "create:session",
       "read:session",
@@ -95,8 +93,8 @@ describe("Use case: Registration Flow (all successful)", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: "registration.flow@example.com",
-          password: "RegistrationFlowPassword",
+          email: "signup.flow@example.com",
+          password: "SignUpFlowPassword",
         }),
       },
     );
